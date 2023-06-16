@@ -134,16 +134,37 @@ oGR2xGeneScores <- function(data, significance.threshold=NULL, score.cap=NULL, b
 		
 	})
 	df_xGene <- do.call(rbind, ls_res_df)
-	
+    
+    
+	#######################################################
+	if(is(GR.Gene,"GRanges")){
+		gr_Gene <- GR.Gene
+	}else{
+		gr_Gene <- oRDS(GR.Gene[1], verbose=verbose, placeholder=placeholder, guid=guid)
+		if(is.null(gr_Gene)){
+			GR.Gene <- "UCSC_knownGene"
+			if(verbose){
+				message(sprintf("Instead, %s will be used", GR.Gene), appendLF=TRUE)
+			}
+			gr_Gene <- oRDS(GR.Gene, verbose=verbose, placeholder=placeholder, guid=guid)
+		}
+    }
+	#######################################################
+
 	#############
 	## for output
+	#############
 	Score <- Symbol <- description <- NULL
-	gene_info <- oRDS("org.Hs.eg", verbose=verbose, placeholder=placeholder, guid=guid)
-	df_xGene <- df_xGene %>% inner_join(gene_info$info %>% transmute(Gene=Symbol,Description=description), by="Gene") %>% transmute(Gene, GScore, Description)
+	### add description (based on NCBI genes)
+	#gene_info <- oRDS("org.Hs.eg", verbose=verbose, placeholder=placeholder, guid=guid)
+	#df_xGene <- df_xGene %>% inner_join(gene_info$info %>% transmute(Gene=Symbol,Description=description), by="Gene") %>% transmute(Gene, GScore, Description)
+	### add description (now based on UCSC genes)
+	df_gr_Gene <- tibble::tibble(Gene=names(gr_Gene), Description=gr_Gene$Description)
+	df_xGene <- df_xGene %>% dplyr::inner_join(df_gr_Gene, by="Gene") %>% dplyr::transmute(Gene, GScore, Description, Context)
 	#############
     
     xGene <- list(xGene=df_xGene,
-    			  GR=df_GR %>% as_tibble() %>% dplyr::transmute(dGR=GR, Pvalue=Pval),
+    			  GR=df_GR %>% tibble::as_tibble() %>% dplyr::transmute(dGR=GR, Pvalue=Pval),
     			  Evidence=df_Evidence
               )
     class(xGene) <- "xGene"

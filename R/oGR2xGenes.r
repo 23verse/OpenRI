@@ -320,31 +320,52 @@ oGR2xGenes <- function(data, format=c("chr:start-end","data.frame","bed","GRange
 		}
 	
 	}
-	
 	df_xGene <- res_df
+    
+    
+	#######################################################
+	if(is(GR.Gene,"GRanges")){
+		gr_Gene <- GR.Gene
+	}else{
+		gr_Gene <- oRDS(GR.Gene[1], verbose=verbose, placeholder=placeholder, guid=guid)
+		if(is.null(gr_Gene)){
+			GR.Gene <- "UCSC_knownGene"
+			if(verbose){
+				message(sprintf("Instead, %s will be used", GR.Gene), appendLF=TRUE)
+			}
+			gr_Gene <- oRDS(GR.Gene, verbose=verbose, placeholder=placeholder, guid=guid)
+		}
+    }
+	#######################################################
     
 	#############
 	## for output
+	#############
 	Score <- Symbol <- description <- NULL
-	gene_info <- oRDS("org.Hs.eg", verbose=verbose, placeholder=placeholder, guid=guid)
-	df_xGene <- df_xGene %>% inner_join(gene_info$info %>% transmute(Gene=Symbol,Description=description), by="Gene") %>% transmute(Gene, GScore, Description)
+	### add description (based on NCBI genes)
+	#gene_info <- oRDS("org.Hs.eg", verbose=verbose, placeholder=placeholder, guid=guid)
+	#df_xGene <- df_xGene %>% inner_join(gene_info$info %>% transmute(Gene=Symbol,Description=description), by="Gene") %>% transmute(Gene, GScore, Description)
+	### add description (now based on UCSC genes)
+	df_gr_Gene <- tibble::tibble(Gene=names(gr_Gene), Description=gr_Gene$Description)
+	df_xGene <- df_xGene %>% dplyr::inner_join(df_gr_Gene, by="Gene") %>% dplyr::transmute(Gene, GScore, Description, Context)
 	#############
     
-    Gene2GR <- df_xGene %>% select(Gene) %>% inner_join(df_SGS_customised %>% as_tibble(), by="Gene")
+    #Gene2GR <- df_xGene %>% select(Gene) %>% inner_join(df_SGS_customised %>% tibble::as_tibble(), by="Gene")
+    Gene2GR <- df_xGene %>% dplyr::select(Gene,Context) %>% dplyr::inner_join(df_SGS_customised %>% tibble::as_tibble(), by=c("Gene","Context"))
     
     # append dGR
     if(1){
    		gr <- oGR(Gene2GR$GR, format="chr:start-end", verbose=verbose, placeholder=placeholder, guid=guid)
    		q2r <- as.data.frame(GenomicRanges::findOverlaps(query=dGR, subject=gr, maxgap=-1L, minoverlap=0L, type="any", select="all", ignore.strand=TRUE))
-   		df_dGR_GR <- tibble(dGR=names(dGR[q2r[,1]]), GR=names(gr[q2r[,2]]))
-   		Gene2GR <- Gene2GR %>% inner_join(df_dGR_GR, by='GR')
+   		df_dGR_GR <- tibble::tibble(dGR=names(dGR[q2r[,1]]), GR=names(gr[q2r[,2]]))
+   		Gene2GR <- Gene2GR %>% dplyr::inner_join(df_dGR_GR, by='GR')
     }
     #############
     
-    df_evidence <- Gene2GR %>% select(GR, Gene, Score, Context, dGR) %>% inner_join(df_xGene, by="Gene") %>% arrange(-GScore, Gene, GR, Context) %>% select(Gene, GR, Score, Context, dGR)
+    df_evidence <- Gene2GR %>% dplyr::select(GR, Gene, Score, Context, dGR) %>% dplyr::inner_join(df_xGene, by=c("Gene","Context")) %>% dplyr::arrange(-GScore, Gene, GR, Context) %>% dplyr::select(Gene, GR, Score, Context, dGR)
     
     xGene <- list(xGene=df_xGene,
-    			  GR=dGR %>% as_tibble() %>% dplyr::transmute(dGR=str_c(seqnames,":",start,"-",end)),
+    			  GR=dGR %>% tibble::as_tibble() %>% dplyr::transmute(dGR=str_c(seqnames,":",start,"-",end)),
     			  Evidence=df_evidence
               )
     class(xGene) <- "xGene"
