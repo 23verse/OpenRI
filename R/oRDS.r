@@ -13,7 +13,7 @@
 #' @import igraph
 #' @import ggplot2
 #' @importFrom BiocGenerics unlist start end
-#' @importFrom dplyr any_vars arrange arrange_all bind_rows desc distinct filter filter_at group_by mutate n_distinct progress_estimated select select_at semi_join slice summarise transmute ungroup vars count n bind_cols all_of arrange as_tibble pull
+#' @importFrom dplyr any_vars arrange arrange_all bind_rows desc distinct filter filter_at group_by mutate n_distinct progress_estimated select select_at semi_join slice summarise transmute ungroup vars count n bind_cols all_of arrange as_tibble pull reframe
 #' @importFrom forcats fct_inorder
 #' @importFrom GenomicRanges findOverlaps distance mcols seqnames as.data.frame GRangesList GRanges split start end
 #' @importFrom ggnetwork ggnetwork geom_nodes geom_edges

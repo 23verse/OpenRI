@@ -176,7 +176,8 @@ oGR2xGenes <- function(data, format=c("chr:start-end","data.frame","bed","GRange
 			if(!is.null(df_SGS_customised)){
 
 				if(verbose){
-					message(sprintf("\tGenes (%d) and genomic regions (%d) are considered based on built-in '%s' (%s) ...", length(unique(df_SGS_customised[,2])), length(unique(df_SGS_customised[,1])), unique(df_SGS_customised[,4]), as.character(Sys.time())), appendLF=TRUE)
+					#message(sprintf("\tGenes (%d) and genomic regions (%d) are considered based on built-in '%s' (%s) ...", length(unique(df_SGS_customised[,2])), length(unique(df_SGS_customised[,1])), unique(df_SGS_customised[,4]), as.character(Sys.time())), appendLF=TRUE)
+					message(sprintf("\tGenes (%d) and genomic regions (%d) are considered based on %d contexts (%s) ...", length(unique(df_SGS_customised[,2])), length(unique(df_SGS_customised[,1])), length(unique(df_SGS_customised[,4])), as.character(Sys.time())), appendLF=TRUE)
 				}
 			}
 		}		
@@ -242,7 +243,8 @@ oGR2xGenes <- function(data, format=c("chr:start-end","data.frame","bed","GRange
 			#################################
 			## keep maximum weight per gene and dgr if there are many overlaps
 			#################################
-			df_xGenes <- as.data.frame(df %>% dplyr::group_by(dgr,Gene) %>% dplyr::summarize(Score=max(Weight)))
+			#df_xGenes <- df %>% dplyr::group_by(dgr,Gene) %>% dplyr::summarize(Score=max(Weight)) %>% as.data.frame()
+			df_xGenes <- df %>% dplyr::reframe(Score=max(Weight), .by=c(dgr,Gene)) %>% as.data.frame()
 			colnames(df_xGenes) <- c('GR','Gene','Score')
 			
 			})
@@ -271,8 +273,9 @@ oGR2xGenes <- function(data, format=c("chr:start-end","data.frame","bed","GRange
 					base::sum(x / base::rank(-x,ties.method="min")^2)
 				}
 			}
-				
-			df_xGenes <- df_xGenes %>% dplyr::group_by(Gene) %>% dplyr::summarise(Score=summaryFun(Score))
+
+			#df_xGenes <- df_xGenes %>% dplyr::group_by(Gene) %>% dplyr::summarise(Score=summaryFun(Score))
+			df_xGenes <- df_xGenes %>% dplyr::reframe(Score=summaryFun(Score), .by=Gene)
 
 			##############
 			## df_xGenes$Pval

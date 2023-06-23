@@ -111,7 +111,8 @@ oGR2xGeneScores <- function(data, significance.threshold=NULL, score.cap=NULL, b
 			}
 		}
     	
-		tmp <- df_SGS %>% dplyr::group_by(Gene) %>% dplyr::summarise(CScore=summaryFun(CScore))
+		#tmp <- df_SGS %>% dplyr::group_by(Gene) %>% dplyr::summarise(CScore=summaryFun(CScore))
+		tmp <- df_SGS %>% dplyr::reframe(CScore=summaryFun(CScore), .by=Gene)
     	seeds.genes <- tmp$CScore
     	names(seeds.genes) <- tmp$Gene
 
