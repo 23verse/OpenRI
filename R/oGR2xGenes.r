@@ -115,6 +115,7 @@ oGR2xGenes <- function(data, format=c("chr:start-end","data.frame","bed","GRange
 			gr_Gene <- oRDS(GR.Gene, verbose=verbose, placeholder=placeholder, guid=guid)
 		}
     }
+    df_gr_Gene <- tibble::tibble(Gene=names(gr_Gene), Description=gr_Gene$Description)
 	#######################################################	
 	####################################################################################
 	df_SGS_customised <- NULL
@@ -352,7 +353,6 @@ oGR2xGenes <- function(data, format=c("chr:start-end","data.frame","bed","GRange
 	#gene_info <- oRDS("org.Hs.eg", verbose=verbose, placeholder=placeholder, guid=guid)
 	#df_xGene <- df_xGene %>% inner_join(gene_info$info %>% transmute(Gene=Symbol,Description=description), by="Gene") %>% transmute(Gene, GScore, Description)
 	### add description (now based on UCSC genes)
-	df_gr_Gene <- tibble::tibble(Gene=names(gr_Gene), Description=gr_Gene$Description)
 	df_xGene <- df_xGene %>% dplyr::inner_join(df_gr_Gene, by="Gene") %>% dplyr::transmute(Gene, GScore, Description, Context)
 	#############
     

@@ -1,6 +1,6 @@
 Package: OpenRI
 Type: Package
-Title: Supporting genomics research leveraging multimodal gene-centered regulatory interactions
+Title: Supporting genomics research leveraging multimodal gene-directed regulatory interactions
 Version: 1.0.0
 Date: 2023-6-26
 Authors@R: c(person("Hai", "Fang", email="fh12355@rjh.com.cn", role=c("aut","cre")))
@@ -8,7 +8,7 @@ Maintainer: Hai Fang <fh12355@rjh.com.cn>
 Depends: R (>= 4.2.0), igraph, ggplot2
 Imports: BiocGenerics, dplyr, forcats, GenomicRanges, ggnetwork, ggrepel, IRanges, magrittr, Matrix, methods, osfr, purrr, readr, stats, stringr, tibble, tidyr, XML, pbapply, curl, ggraph
 Suggests: coin, foreach, ggridges, grid, gridExtra, RColorBrewer, rtracklayer, Gviz, MASS, dnet, graphics, grDevices, S4Vectors, utils, ggbio, GenomeInfoDb, doParallel, scales, data.tree, jsonlite
-Description: This package builds on an open and scalable resource called 'OpenRI' for gene-centered regulatory interactions inclusive of non-coding genomic regions. As a backend for the web-server 'OpenRI', it enables interactive exploration of multimodal regulatory interactions (e/pQTL, promoter capture Hi-C, and enhancer-gene maps) and their use in epi/genomics research.
+Description: This package builds on an open and scalable resource called 'OpenRI' for gene-directed regulatory interactions inclusive of non-coding genomic regions. As a backend for the web-server 'OpenRI', it enables interactive exploration of multimodal regulatory interactions (ABC, PCHiC, QTL) and their use in epi/genomics research.
 Collate:
      'oAuxEmbed.r'
      'oRDS.r'
