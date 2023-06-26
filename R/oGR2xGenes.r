@@ -101,6 +101,21 @@ oGR2xGenes <- function(data, format=c("chr:start-end","data.frame","bed","GRange
 		return(NULL)
 	}
 	###################
+	
+	#######################################################
+	if(is(GR.Gene,"GRanges")){
+		gr_Gene <- GR.Gene
+	}else{
+		gr_Gene <- oRDS(GR.Gene[1], verbose=verbose, placeholder=placeholder, guid=guid)
+		if(is.null(gr_Gene)){
+			GR.Gene <- "UCSC_knownGene"
+			if(verbose){
+				message(sprintf("Instead, %s will be used", GR.Gene), appendLF=TRUE)
+			}
+			gr_Gene <- oRDS(GR.Gene, verbose=verbose, placeholder=placeholder, guid=guid)
+		}
+    }
+	#######################################################	
 	####################################################################################
 	df_SGS_customised <- NULL
     if(!is.null(crosslink.customised)){
@@ -250,9 +265,12 @@ oGR2xGenes <- function(data, format=c("chr:start-end","data.frame","bed","GRange
 			})
 			
 			########################################
-			# check gene (make sure official symbol)
-			ind <- !is.na(oSymbol2GeneID(df_xGenes$Gene, details=TRUE, verbose=FALSE, placeholder=placeholder, guid=guid)$Symbol)
-			df_xGenes <- df_xGenes[ind,]
+			# check gene (make sure official symbol based on NCBI genes)
+			#ind <- !is.na(oSymbol2GeneID(df_xGenes$Gene, details=TRUE, verbose=FALSE, placeholder=placeholder, guid=guid)$Symbol)
+			#df_xGenes <- df_xGenes[ind,]
+			
+			# check gene (make sure official symbol based on UCSC genes)
+			df_xGenes <- df_xGenes %>% dplyr::semi_join(df_gr_Gene, by="Gene")
 			########################################
 	
 			if(verbose){
@@ -325,21 +343,6 @@ oGR2xGenes <- function(data, format=c("chr:start-end","data.frame","bed","GRange
 	}
 	df_xGene <- res_df
     
-    
-	#######################################################
-	if(is(GR.Gene,"GRanges")){
-		gr_Gene <- GR.Gene
-	}else{
-		gr_Gene <- oRDS(GR.Gene[1], verbose=verbose, placeholder=placeholder, guid=guid)
-		if(is.null(gr_Gene)){
-			GR.Gene <- "UCSC_knownGene"
-			if(verbose){
-				message(sprintf("Instead, %s will be used", GR.Gene), appendLF=TRUE)
-			}
-			gr_Gene <- oRDS(GR.Gene, verbose=verbose, placeholder=placeholder, guid=guid)
-		}
-    }
-	#######################################################
     
 	#############
 	## for output

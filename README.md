@@ -2,7 +2,7 @@
 
 ## @ Overview
 
-> The `OpenRI` is an R package enhancing genomic summary data interpretation leveraging ontologies and networks.
+> The `OpenRI` is an R package supporting genomics research leveraging multimodal gene-directed regulatory interactions.
 
 
 ## @ Installation
